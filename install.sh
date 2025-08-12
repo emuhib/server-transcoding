@@ -5,7 +5,6 @@ echo "      Auto Transcoding Server Installer"
 echo "================================================="
 
 # --- Pengaturan Password ---
-# Password yang akan diatur untuk user 'admin' di File Browser
 FIXED_PASSWORD="serverku12345"
 
 # --- Update Sistem & Install Software Penting ---
@@ -33,12 +32,14 @@ echo "[INFO] Skrip render_pintar.sh siap digunakan."
 echo "[INFO] Menginstall File Browser..."
 curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 
-# --- Inisialisasi Database & Ganti Password SECARA LANGSUNG ---
+# --- Inisialisasi Database & BUAT USER BARU ---
 echo "[INFO] Menginisialisasi database File Browser di /filebrowser.db..."
 filebrowser --database /filebrowser.db config init
 
-echo "[INFO] Mengatur password untuk user 'admin' menjadi '${FIXED_PASSWORD}'..."
-filebrowser --database /filebrowser.db users update admin --password "${FIXED_PASSWORD}"
+echo "[INFO] Membuat user 'admin' dengan password '${FIXED_PASSWORD}'..."
+# --- PERBAIKAN DI SINI ---
+# Menggunakan 'users add' untuk membuat user baru sekaligus mengatur passwordnya.
+filebrowser --database /filebrowser.db users add admin "${FIXED_PASSWORD}" --perm.admin
 
 # --- Membuat Skrip Peluncur untuk File Browser di dalam Screen ---
 echo "[INFO] Membuat skrip peluncur untuk File Browser..."
