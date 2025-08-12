@@ -4,6 +4,10 @@ echo "================================================="
 echo "      Auto Transcoding Server Installer"
 echo "================================================="
 
+# --- Pengaturan Password ---
+# Password yang akan diatur untuk user 'admin' di File Browser
+FIXED_PASSWORD="serverku12345"
+
 # --- Update Sistem & Install Software Penting ---
 echo "[INFO] Mengupdate sistem dan menginstall software (ffmpeg, curl, dos2unix, screen)..."
 apt-get update
@@ -15,7 +19,7 @@ mkdir -p /videos_mentah
 mkdir -p /videos_jadi
 
 # --- Mengunduh Skrip Render ---
-GITHUB_USER="emuhib" # <--- GANTI INI
+GITHUB_USER="emuhib" # <--- GANTI INI DENGAN USERNAME GITHUB ANDA
 REPO_NAME="server-transcoding"
 echo "[INFO] Mengunduh skrip render_pintar.sh dari GitHub..."
 curl -o /render_pintar.sh https://raw.githubusercontent.com/${GITHUB_USER}/${REPO_NAME}/main/render_pintar.sh
@@ -29,11 +33,19 @@ echo "[INFO] Skrip render_pintar.sh siap digunakan."
 echo "[INFO] Menginstall File Browser..."
 curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash
 
+# --- Inisialisasi Database & Ganti Password SECARA LANGSUNG ---
+echo "[INFO] Menginisialisasi database File Browser di /filebrowser.db..."
+filebrowser --database /filebrowser.db config init
+
+echo "[INFO] Mengatur password untuk user 'admin' menjadi '${FIXED_PASSWORD}'..."
+filebrowser --database /filebrowser.db users update admin --password "${FIXED_PASSWORD}"
+
 # --- Membuat Skrip Peluncur untuk File Browser di dalam Screen ---
 echo "[INFO] Membuat skrip peluncur untuk File Browser..."
 cat <<'EOF' > /start_filebrowser.sh
 #!/bin/bash
-/usr/bin/screen -S filemanager -d -m /usr/local/bin/filebrowser -a 0.0.0.0 -r / -p 8080
+# Menjalankan filebrowser dengan database di lokasi yang benar
+/usr/bin/screen -S filemanager -d -m /usr/local/bin/filebrowser -a 0.0.0.0 -r / -p 8080 --database /filebrowser.db
 EOF
 chmod +x /start_filebrowser.sh
 
@@ -67,15 +79,9 @@ ufw allow 8080/tcp
 echo "================================================="
 echo "         SETUP SELESAI & INFORMASI AKSES"
 echo "================================================="
-echo "Mencari password acak yang baru dibuat..."
-echo "Tunggu sekitar 10 detik..."
-echo ""
-sleep 10 # Memberi waktu agar filebrowser.db dan log sempat dibuat
-# Mencari password dari file database-nya langsung, ini cara paling andal
-PASSWORD=$(/usr/local/bin/filebrowser users find admin | grep "Password" | awk '{print $2}')
-echo "Login ke File Browser di: http://IP_SERVER_ANDA:8080"
+echo "Akses File Browser di: http://IP_SERVER_ANDA:8080"
 echo "Gunakan Username: admin"
-echo "Gunakan Password: ${PASSWORD}"
+echo "Gunakan Password: ${FIXED_PASSWORD}"
 echo ""
 echo "-------------------------------------------------"
 echo "File Browser sekarang berjalan AMAN di dalam 'screen'."
