@@ -15,7 +15,7 @@ Repositori ini berisi skrip untuk secara otomatis menyiapkan server Ubuntu baru 
 3.  Jalankan perintah berikut:
 
     ```bash
-    wget [https://raw.githubusercontent.com/emuhib/server-transcoding/main/install.sh](https://raw.githubusercontent.com/NAMA_USER_GITHUB_ANDA/server-transcoding/main/install.sh) && bash install.sh
+    wget [https://raw.githubusercontent.com/emuhib/server-transcoding/main/install.sh](https://raw.githubusercontent.com/emuhib/server-transcoding/main/install.sh) && bash install.sh
     ```
 
 4.  Tunggu proses instalasi selesai. Di akhir, Anda akan diberikan **password** untuk login ke File Browser.
