@@ -22,41 +22,60 @@ Repositori ini berisi skrip untuk secara otomatis menyiapkan server Ubuntu baru 
     
     ```
 
-4.  Tunggu proses instalasi selesai. Di akhir, Anda akan diberikan **password** untuk login ke File Browser. **CATAT PASSWORD INI BAIK-BAIK.**
+4.  Tunggu proses instalasi selesai. Di akhir, Anda akan diberikan **password** (`serverku12345` atau yang Anda atur di skrip) untuk login ke File Browser.
 
 ---
 
 ## B. Alur Kerja Transcoding (Proses Sehari-hari)
 
-Semua langkah di bawah ini dilakukan dari browser Anda, tidak perlu membuka aplikasi SSH lagi.
+Ini adalah langkah-langkah yang akan Anda ulangi setiap kali ingin memproses video.
 
-### Langkah 1: Pindahkan Video dari Server Lama
+### Langkah 1: Pindahkan Video ke Server Transcoding
 
-1.  Buka **Terminal Web** di browser Anda dengan mengunjungi alamat:
-    `http://IP_SERVER_TRANSCODING:7681`
-
+1.  Login ke **Server Transcoding** Anda via SSH.
 2.  Jalankan perintah `scp` untuk "menarik" semua video dari server lama ke folder `/videos_mentah`. Ganti `IP_SERVER_LAMA` dengan IP server StreamHib Anda.
+
     ```bash
     scp root@IP_SERVER_LAMA:/root/StreamHibV2/videos/*.mp4 /videos_mentah/
     ```
-
 3.  Anda akan dimintai password untuk **server lama**. Masukkan passwordnya dan tunggu proses transfer selesai.
 
-### Langkah 2: Jalankan Proses Render
+### Langkah 2: Mulai Sesi Render di `screen`
 
-1.  Masih di **Terminal Web** yang sama.
-2.  Jalankan skrip render pintar dengan perintah:
+1.  Setelah semua video berhasil dipindahkan, buat sesi `screen` baru bernama `render`:
     ```bash
-    /render_pintar.sh
+    screen -S render
     ```
-3.  Proses render akan berjalan di jendela terminal tersebut. Anda bisa memantaunya sampai selesai.
+    *(Jika sesi `render` sudah ada dari sebelumnya, gunakan `screen -r render` untuk masuk kembali).*
 
-### Langkah 3: Kembalikan Video Hasil ke Server Lama
+### Langkah 3: Jalankan Skrip Render
 
-1.  Setelah proses render selesai, tetap di **Terminal Web**.
-2.  Jalankan perintah `scp` untuk "mendorong" semua video yang sudah diproses dari folder `/videos_jadi` kembali ke server lama.
+1.  Setelah masuk ke dalam `screen`, **pindah direktori terlebih dahulu** agar tidak salah lokasi. Ini penting!
+    ```bash
+    cd /
+    
+    ```
+2.  Sekarang jalankan skrip render pintar:
+    ```bash
+    ./render_pintar.sh
+    
+    ```
+3.  Proses render akan berjalan di layar Anda.
+
+### Langkah 4: Tinggalkan Proses Agar Berjalan Aman
+
+1.  Biarkan proses render berjalan, Anda bisa keluar dari sesi `screen` dengan menekan:
+    * **`Ctrl+A`** (lepaskan)
+    * Lalu tekan **`D`**
+2.  Anda sekarang bisa menutup jendela SSH. Proses render akan tetap berjalan dengan aman di server.
+
+### Langkah 5: Kembalikan Video Hasil ke Server Lama
+
+1.  Login kembali ke **Server Transcoding** via SSH kapan pun Anda mau untuk mengecek. Gunakan `screen -r render` untuk melihat progres.
+2.  Jika semua proses sudah selesai (terminal di dalam `screen` menampilkan "Semua Proses Selesai"), kembalikan semua video yang sudah diproses dari folder `/videos_jadi` ke server lama.
+
     ```bash
     scp /videos_jadi/*.mp4 root@IP_SERVER_LAMA:/root/StreamHibV2/videos/
+    
     ```
-3.  Anda akan dimintai password untuk **server lama** lagi. Tunggu hingga proses transfer selesai.
-4.  (Opsional) Anda bisa membersihkan folder `/videos_mentah` dan `/videos_jadi` melalui **File Browser** (`http://IP_SERVER_TRANSCODING:8080`) untuk persiapan render berikutnya.
+3.  Tunggu hingga proses transfer selesai. Video Anda yang sudah dioptimalkan kini siap digunakan di server StreamHib.
