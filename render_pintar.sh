@@ -26,13 +26,13 @@ find "$DIR_MENTAH" -maxdepth 1 -type f -name "*.mp4" -print0 | while IFS= read -
 
     height=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of csv=s=x:p=0 "$file")
 
-    if [[ $height -ge 2160 ]]; then
+    if [[ $height -ge 2000 ]]; then
         echo "   Resolusi terdeteksi: 4K. Menerapkan preset 4K (12000k)."
         ffmpeg -y -nostdin -i "$file" -vf "scale=3840:2160" -c:v libx264 -preset veryfast -b:v 12000k -minrate 12000k -maxrate 12000k -r 30 -g 60 -c:a copy "$output_file"
-    elif [[ $height -ge 1080 ]]; then
+    elif [[ $height -ge 1000 ]]; then
         echo "   Resolusi terdeteksi: 1080p. Menerapkan preset 1080p (6500k)."
         ffmpeg -y -nostdin -i "$file" -vf "scale=1920:1080" -c:v libx264 -preset veryfast -b:v 6500k -minrate 6500k -maxrate 6500k -r 30 -g 60 -c:a copy "$output_file"
-    elif [[ $height -ge 720 ]]; then
+    elif [[ $height -ge 700 ]]; then
         echo "   Resolusi terdeteksi: 720p. Menerapkan preset 720p (2500k)."
         ffmpeg -y -nostdin -i "$file" -vf "scale=1280:720"  -c:v libx264 -preset veryfast -b:v 2500k -minrate 2500k -maxrate 2500k -r 30 -g 60 -c:a copy "$output_file"
     else
